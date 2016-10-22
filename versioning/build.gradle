@@ -1,0 +1,40 @@
+ext.versionFile = file('version.properties')
+
+task version {
+    project.version = version()
+    println "Project Version is ${project.version}"
+}
+
+ProjectVersion version() {
+
+    if (!versionFile.exists()) {
+        throw new Exception("Failed to find version file: ${ext.versionFile}")
+    }
+
+    Properties properties = new Properties()
+
+    versionFile.withInputStream { stream ->
+        properties.load(stream)
+    }
+
+    new ProjectVersion(properties.major.toInteger(), properties.minor.toInteger(), properties.release.toBoolean())
+}
+
+
+class ProjectVersion {
+
+    Integer major
+    Integer minor
+    boolean release
+
+    ProjectVersion(Integer major, Integer minor, boolean release) {
+        this.major = major
+        this.minor = minor
+        this.release = release
+    }
+
+    @Override
+    public String toString() {
+        return "$major.$minor${release ? '' : '-SNAPSHOT'}"
+    }
+}
